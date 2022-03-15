@@ -32,12 +32,8 @@
             </tr>
         </table>
         {% if access[loop.index0] %}
-            <a class="btn btn-warning" href="/edit_job/{{ action.id }}" role="button"
-            >Edit the job</a
-            >
-            <a class="btn btn-danger" href="/delete_job/{{ action.id }}" role="button"
-            >Delete the job</a
-            >
+            <a class="btn btn-warning" href="/edit_job/{{ action.id }}" role="button">Edit the job</a>
+            <a class="btn btn-danger" href="/delete_job/{{ action.id }}" role="button">Delete the job</a>
         {% endif %} {% endfor %}
     </div>
 {% endblock %}

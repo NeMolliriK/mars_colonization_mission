@@ -22,18 +22,9 @@
             </tr>
         </table>
         {% if access[loop.index0] %}
-            <a
-                    class="btn btn-warning"
-                    href="/edit_department/{{ department.id }}"
-                    role="button"
-            >Edit the department</a
-            >
-            <a
-                    class="btn btn-danger"
-                    href="/delete_department/{{ department.id }}"
-                    role="button"
-            >Delete the department</a
-            >
+            <a class="btn btn-warning" href="/edit_department/{{ department.id }}" role="button">Edit the department</a>
+            <a class="btn btn-danger" href="/delete_department/{{ department.id }}" role="button">Delete the
+                department</a>
         {% endif %} {% endfor %}
     </div>
 {% endblock %}

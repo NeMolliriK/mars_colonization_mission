@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, BooleanField, StringField, IntegerField, DateField, SelectField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NumberRange
 from datetime import date
 
 
@@ -9,7 +9,7 @@ class AddJob(FlaskForm):
                               choices=[(int(i.split()[0]), f'{i.split()[1]} {i.split()[2]}') for i in
                                        open("users.txt").read().split('\n')[:-1]])
     job = StringField('Title of activity', validators=[DataRequired()])
-    work_size = IntegerField('Duration (in hours)', validators=[DataRequired()])
+    work_size = IntegerField('Duration (in hours)', validators=[DataRequired(), NumberRange(min=1)])
     collaborators = StringField('List of collaborators id', validators=[DataRequired()])
     start_date = DateField('Start date', default=date(1, 1, 1))
     end_date = DateField('End date', default=date(1, 1, 1))
