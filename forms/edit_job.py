@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
+from wtforms.validators import DataRequired, NumberRange
 from wtforms import SubmitField, BooleanField, StringField, IntegerField, DateField, SelectMultipleField, SelectField
-from wtforms.validators import DataRequired
 
 
 class EditJob(FlaskForm):
@@ -8,8 +8,8 @@ class EditJob(FlaskForm):
                               choices=[(int(i.split()[0]), f'{i.split()[1]} {i.split()[2]}') for i in
                                        open("users.txt").read().split('\n')[:-1]])
     job = StringField('Title of activity', validators=[DataRequired()])
-    work_size = IntegerField('Duration', validators=[DataRequired()])
-    collaborators = StringField('List of collaborators', validators=[DataRequired()])
+    work_size = IntegerField('Duration (in hours)', validators=[DataRequired(), NumberRange(min=1)])
+    collaborators = StringField('List of collaborators id', validators=[DataRequired()])
     categories = SelectMultipleField('Hazard category', validators=[DataRequired()], coerce=int,
                                      choices=[(int(i.split()[0]), i.split()[1]) for i in
                                               open("categories.txt").read().split('\n')[:-1]])
