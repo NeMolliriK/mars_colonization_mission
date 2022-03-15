@@ -15,6 +15,7 @@ from data import users_resource
 from data import jobs_resource
 from waitress import serve
 from os import environ
+from data.categories import Category
 
 app = Flask(__name__)
 api = Api(app)
@@ -51,11 +52,11 @@ def reqister():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Registration', form=form, message="Passwords do not match",
                                    register=1)
-        if db_sess.query(User).filter(User.email == form.login.data).first():
+        if db_sess.query(User).filter(User.email == form.email.data).first():
             return render_template('register.html', title='Registration', form=form, message="This user already exists",
                                    register=1)
         user = User(surname=form.surname.data, name=form.name.data, age=form.age.data, position=form.position.data,
-                    speciality=form.speciality.data, address=form.address.data, email=form.login.data,
+                    speciality=form.speciality.data, address=form.address.data, email=form.email.data,
                     city_from=form.city_from.data)
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -79,6 +80,7 @@ def jobs():
 @app.route('/add_job', methods=['GET', 'POST'])
 @login_required
 def add_job():
+    open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = AddJob()
     if form.validate_on_submit():
         job = Job(team_leader=form.team_leader.data, job=form.job.data, work_size=form.work_size.data,
@@ -94,6 +96,7 @@ def add_job():
 @app.route('/edit_job/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_job(id):
+    open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = EditJob()
     job = db_sess.query(Job).filter(Job.id == id).first()
     if request.method == "GET":
@@ -130,6 +133,7 @@ def delete_job(id):
 @app.route('/add_department', methods=['GET', 'POST'])
 @login_required
 def add_department():
+    open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = AddDepartment()
     if form.validate_on_submit():
         department = Department(title=form.title.data, chief=form.chief.data, members=form.members.data,
@@ -157,6 +161,7 @@ def departments():
 @app.route('/edit_department/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_department(id):
+    open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = EditDepartment()
     department = db_sess.query(Department).filter(Department.id == id).first()
     if request.method == "GET":
