@@ -14,6 +14,7 @@ from flask_restful import Api
 from data import users_resource
 from data import jobs_resource
 from waitress import serve
+from os import environ
 
 app = Flask(__name__)
 api = Api(app)
@@ -211,4 +212,4 @@ def not_found(error):
 
 
 if __name__ == '__main__':
-    serve(app, host='0.0.0.0', port=5000)
+    serve(app, host='0.0.0.0', port=int(environ.get("PORT", 5000)))
