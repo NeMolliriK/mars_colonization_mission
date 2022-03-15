@@ -23,7 +23,11 @@
                     {{ action.work_size }} hour{% if action.work_size != 1 %}s{% endif %}
                 </td>
                 <td>{{ action.collaborators }}</td>
-                <td>{{ action.categories[0].id }}</td>
+                <td>
+                    {% for category in action.categories %}
+                        {{ category.title }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
                 {% if action.is_finished %}
                     <td class="finished">Is finished</td>
                 {% else %}

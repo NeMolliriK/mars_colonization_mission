@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block content %}
+    <div class="container">
+        <h1>List of categories</h1>
+        {% if message %}
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% endif %} {% for category in categories %}
+        <table>
+            <caption>
+                <h2>Category # {{ loop.index }}</h2>
+            </caption>
+            <tr>
+                <td>Title of category</td>
+            </tr>
+            <tr>
+                <td>{{ category.title }}</td>
+            </tr>
+        </table>
+        <a class="btn btn-warning" href="/edit_category/{{ category.id }}" role="button">Edit the category</a>
+        <a class="btn btn-danger" href="/delete_category/{{ category.id }}" role="button">Delete the category</a>
+    {% endfor %}
+    </div>
+{% endblock %}
