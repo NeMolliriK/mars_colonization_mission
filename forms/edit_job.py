@@ -14,4 +14,4 @@ class EditJob(FlaskForm):
     start_date = DateField('Start date')
     end_date = DateField('End date')
     is_finished = BooleanField('Is finished')
-    submit = SubmitField('Edit Job')
+    submit = SubmitField('Edit job')

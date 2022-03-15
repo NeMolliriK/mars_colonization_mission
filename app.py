@@ -16,6 +16,8 @@ from data import jobs_resource
 from waitress import serve
 from os import environ
 from data.categories import Category
+from forms.add_category import AddCategory
+from forms.edit_category import EditCategory
 
 app = Flask(__name__)
 api = Api(app)
@@ -102,7 +104,7 @@ def edit_job(id):
     open("categories.txt", "w").writelines(
         [f'{category.id} {category.title}\n' for category in db_sess.query(Category)])
     form = EditJob()
-    job = db_sess.query(Job).filter(Job.id == id).first()
+    job = db_sess.query(Job).get(id)
     if request.method == "GET":
         if job:
             form.team_leader.data = job.team_leader
@@ -131,13 +133,13 @@ def edit_job(id):
                 job.categories.append(db_sess.query(Category).get(category))
             db_sess.commit()
             return redirect('/jobs')
-    return render_template('edit_job.html', title='Editing a job', form=form)
+    return render_template('edit_job.html', title='Editing job', form=form)
 
 
 @app.route('/delete_job/<int:id>')
 @login_required
 def delete_job(id):
-    db_sess.delete(db_sess.query(Job).filter(Job.id == id).first())
+    db_sess.delete(db_sess.query(Job).get(id))
     db_sess.commit()
     return redirect('/jobs')
 
@@ -147,9 +149,8 @@ def delete_job(id):
 def add_department():
     form = AddDepartment()
     if form.validate_on_submit():
-        department = Department(title=form.title.data, chief=form.chief.data, members=form.members.data,
-                                email=form.email.data)
-        db_sess.add(department)
+        db_sess.add(
+            Department(title=form.title.data, chief=form.chief.data, members=form.members.data, email=form.email.data))
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/departments')
@@ -173,7 +174,7 @@ def departments():
 @login_required
 def edit_department(id):
     form = EditDepartment()
-    department = db_sess.query(Department).filter(Department.id == id).first()
+    department = db_sess.query(Department).get(id)
     if request.method == "GET":
         if department:
             form.title.data = department.title
@@ -188,20 +189,62 @@ def edit_department(id):
             department.email = form.email.data
             db_sess.commit()
             return redirect('/departments')
-    return render_template('edit_department.html', title='Editing a department', form=form)
+    return render_template('edit_department.html', title='Editing department', form=form)
 
 
 @app.route('/delete_department/<int:id>')
 @login_required
 def delete_department(id):
-    db_sess.delete(db_sess.query(Department).filter(Department.id == id).first())
+    db_sess.delete(db_sess.query(Department).get(id))
     db_sess.commit()
     return redirect('/departments')
 
 
+@app.route('/add_category', methods=['GET', 'POST'])
+@login_required
+def add_category():
+    form = AddCategory()
+    if form.validate_on_submit():
+        db_sess.add(Category(title=form.title.data))
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/categories')
+    return render_template("add_category.html", title='Adding a category', add_category=1, form=form)
+
+
+@app.route('/categories')
+@login_required
+def categories():
+    return render_template("categories.html", categories=db_sess.query(Category), title='List of categories')
+
+
+@app.route('/delete_category/<int:id>')
+@login_required
+def delete_category(id):
+    db_sess.delete(db_sess.query(Category).get(id))
+    db_sess.commit()
+    return redirect('/categories')
+
+
+@app.route('/edit_category/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_category(id):
+    form = EditCategory()
+    category = db_sess.query(Category).get(id)
+    if request.method == "GET":
+        if category:
+            form.title.data = category.title
+    if form.validate_on_submit():
+        if category:
+            category.title = form.title.data
+            db_sess.commit()
+            return redirect('/categories')
+    return render_template('edit_category.html', title='Editing category', form=form)
+
+
 @app.route('/')
 def base():
-    return render_template("base.html")
+    return render_template("base.html", title="Main page")
 
 
 @app.route('/logout')

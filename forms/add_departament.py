@@ -8,4 +8,4 @@ class AddDepartment(FlaskForm):
     chief = IntegerField('Chief', validators=[DataRequired()])
     members = StringField('Members', validators=[DataRequired()])
     email = StringField('Department Email', validators=[DataRequired()])
-    submit = SubmitField('Add a Department')
+    submit = SubmitField('Add a department')
