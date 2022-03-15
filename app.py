@@ -15,6 +15,7 @@ from data import users_resource
 from data import jobs_resource
 from waitress import serve
 from os import environ
+from data.categories import Category
 
 app = Flask(__name__)
 api = Api(app)
@@ -79,11 +80,15 @@ def jobs():
 @app.route('/add_job', methods=['GET', 'POST'])
 @login_required
 def add_job():
+    open("categories.txt", "w").writelines(
+        [f'{category.id} {category.title}\n' for category in db_sess.query(Category)])
     form = AddJob()
     if form.validate_on_submit():
         job = Job(team_leader=form.team_leader.data, job=form.job.data, work_size=form.work_size.data,
                   collaborators=form.collaborators.data, start_date=form.start_date.data, end_date=form.end_date.data,
                   is_finished=form.is_finished.data)
+        for category in form.categories.data:
+            job.categories.append(db_sess.query(Category).get(category))
         db_sess.add(job)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -94,6 +99,8 @@ def add_job():
 @app.route('/edit_job/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_job(id):
+    open("categories.txt", "w").writelines(
+        [f'{category.id} {category.title}\n' for category in db_sess.query(Category)])
     form = EditJob()
     job = db_sess.query(Job).filter(Job.id == id).first()
     if request.method == "GET":
@@ -105,6 +112,7 @@ def edit_job(id):
             form.start_date.data = job.start_date
             form.end_date.data = job.end_date
             form.is_finished.data = job.is_finished
+            form.categories.data = [category.id for category in job.categories]
     if form.validate_on_submit():
         if job:
             job.team_leader = form.team_leader.data
@@ -114,6 +122,13 @@ def edit_job(id):
             job.start_date = form.start_date.data
             job.end_date = form.end_date.data
             job.is_finished = form.is_finished.data
+            for category in db_sess.query(Category):
+                try:
+                    job.categories.remove(category)
+                except ValueError:
+                    pass
+            for category in form.categories.data:
+                job.categories.append(db_sess.query(Category).get(category))
             db_sess.commit()
             return redirect('/jobs')
     return render_template('edit_job.html', title='Editing a job', form=form)

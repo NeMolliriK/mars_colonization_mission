@@ -1,44 +1,47 @@
 {% extends "base.html" %} {% block content %}
-<div class="container">
-    <h1>Works log</h1>
-    {% if message %}
-    <div class="alert alert-danger" role="alert">{{ message }}</div>
-    {% endif %} {% for action in jobs %}
-    <table>
-        <caption>
-            <h2>Action # {{loop.index}}</h2>
-        </caption>
-        <tr>
-            <td>Title of activity</td>
-            <td>Team leader</td>
-            <td>Duration</td>
-            <td>List of collaborators</td>
-            <td>Hazard category</td>
-            <td>Is finished</td>
-        </tr>
-        <tr>
-            <td>{{action.job}}</td>
-            <td>{{users[action.team_leader]}}</td>
-            <td>
-                {{action.work_size}} hour{% if action.work_size != 1 %}s{% endif
-                %}
-            </td>
-            <td>{{action.collaborators}}</td>
-            <td>{{action.categories[0].id}}</td>
-            {% if action.is_finished %}
-            <td class="finished">Is finished</td>
-            {% else %}
-            <td class="not-finished">Is not finished</td>
-            {% endif %}
-        </tr>
-    </table>
-    {% if access[loop.index0] %}
-    <a class="btn btn-warning" href="/edit_job/{{action.id}}" role="button"
-        >Edit the job</a
-    >
-    <a class="btn btn-danger" href="/delete_job/{{action.id}}" role="button"
-        >Delete the job</a
-    >
-    {% endif %} {% endfor %}
-</div>
+    <div class="container">
+        <h1>Works log</h1>
+        {% if message %}
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% endif %} {% for action in jobs %}
+        <table>
+            <caption>
+                <h2>Action # {{ loop.index }}</h2>
+            </caption>
+            <tr>
+                <td>Title of activity</td>
+                <td>Team leader</td>
+                <td>Duration</td>
+                <td>List of collaborators</td>
+                <td>Hazard category</td>
+                <td>Is finished</td>
+            </tr>
+            <tr>
+                <td>{{ action.job }}</td>
+                <td>{{ users[action.team_leader] }}</td>
+                <td>
+                    {{ action.work_size }} hour{% if action.work_size != 1 %}s{% endif %}
+                </td>
+                <td>{{ action.collaborators }}</td>
+                <td>
+                    {% for category in action.categories %}
+                        {{ category.id }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                {% if action.is_finished %}
+                    <td class="finished">Is finished</td>
+                {% else %}
+                    <td class="not-finished">Is not finished</td>
+                {% endif %}
+            </tr>
+        </table>
+        {% if access[loop.index0] %}
+            <a class="btn btn-warning" href="/edit_job/{{ action.id }}" role="button"
+            >Edit the job</a
+            >
+            <a class="btn btn-danger" href="/delete_job/{{ action.id }}" role="button"
+            >Delete the job</a
+            >
+        {% endif %} {% endfor %}
+    </div>
 {% endblock %}
