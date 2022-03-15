@@ -1,39 +1,39 @@
 {% extends "base.html" %} {% block content %}
-<div class="container">
-    <h1>List of departments</h1>
-    {% if message %}
-    <div class="alert alert-danger" role="alert">{{ message }}</div>
-    {% endif %} {% for department in departments %}
-    <table>
-        <caption>
-            <h2>Department # {{loop.index}}</h2>
-        </caption>
-        <tr>
-            <td>Title of department</td>
-            <td>Chief</td>
-            <td>Members</td>
-            <td>Department Email</td>
-        </tr>
-        <tr>
-            <td>{{department.title}}</td>
-            <td>{{users[department.chief]}}</td>
-            <td>{{department.members}}</td>
-            <td>{{department.email}}</td>
-        </tr>
-    </table>
-    {% if access[loop.index0] %}
-    <a
-        class="btn btn-warning"
-        href="/edit_department/{{department.id}}"
-        role="button"
-        >Edit the department</a
-    >
-    <a
-        class="btn btn-danger"
-        href="/delete_department/{{department.id}}"
-        role="button"
-        >Delete the department</a
-    >
-    {% endif %} {% endfor %}
-</div>
+    <div class="container">
+        <h1>List of departments</h1>
+        {% if message %}
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% endif %} {% for department in departments %}
+        <table>
+            <caption>
+                <h2>Department # {{ loop.index }}</h2>
+            </caption>
+            <tr>
+                <td>Title of department</td>
+                <td>Chief</td>
+                <td>Members</td>
+                <td>Department Email</td>
+            </tr>
+            <tr>
+                <td>{{ department.title }}</td>
+                <td>{{ users[department.chief] }}</td>
+                <td>{{ department.members }}</td>
+                <td>{{ department.email }}</td>
+            </tr>
+        </table>
+        {% if access[loop.index0] %}
+            <a
+                    class="btn btn-warning"
+                    href="/edit_department/{{ department.id }}"
+                    role="button"
+            >Edit the department</a
+            >
+            <a
+                    class="btn btn-danger"
+                    href="/delete_department/{{ department.id }}"
+                    role="button"
+            >Delete the department</a
+            >
+        {% endif %} {% endfor %}
+    </div>
 {% endblock %}
