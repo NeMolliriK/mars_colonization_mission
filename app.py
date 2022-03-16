@@ -19,7 +19,6 @@ from data.categories import Category
 from forms.add_category import AddCategory
 from forms.edit_category import EditCategory
 
-
 app = Flask(__name__)
 api = Api(app)
 api.add_resource(users_resource.UsersListResource, '/api/v2/users')
@@ -83,16 +82,24 @@ def jobs():
 @app.route('/add_job', methods=['GET', 'POST'])
 @login_required
 def add_job():
-    open("categories.txt", "w").writelines(
-        [f'{category.id} {category.title}\n' for category in db_sess.query(Category)])
-    open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = AddJob()
     if form.validate_on_submit():
+        if not db_sess.query(User).get(form.team_leader.data):
+            return render_template("add_job.html", title='Adding a job', add_job=1, form=form,
+                                   message="There is no user with this id")
+        for category_id in form.categories.data.split(", "):
+            try:
+                if not db_sess.query(Category).get(int(category_id)):
+                    return render_template("add_job.html", title='Adding a job', add_job=1, form=form,
+                                           message="There is no category or categories with this or those id")
+            except ValueError:
+                return render_template("add_job.html", title='Adding a job', add_job=1, form=form,
+                                       message='Wrong category list format (correct examples: "1, 2", "1")')
         job = Job(team_leader=form.team_leader.data, job=form.job.data, work_size=form.work_size.data,
-                  collaborators=form.collaborators.data, start_date=form.start_date.data, end_date=form.end_date.data,
-                  is_finished=form.is_finished.data)
-        for category in form.categories.data:
-            job.categories.append(db_sess.query(Category).get(category))
+                  collaborators=form.collaborators.data, start_date=form.start_date.data,
+                  end_date=form.end_date.data, is_finished=form.is_finished.data)
+        for category_id in form.categories.data.split(", "):
+            job.categories.append(db_sess.query(Category).get(int(category_id)))
         db_sess.add(job)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -103,9 +110,6 @@ def add_job():
 @app.route('/edit_job/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_job(id):
-    open("categories.txt", "w").writelines(
-        [f'{category.id} {category.title}\n' for category in db_sess.query(Category)])
-    open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = EditJob()
     job = db_sess.query(Job).get(id)
     if request.method == "GET":
@@ -117,9 +121,20 @@ def edit_job(id):
             form.start_date.data = job.start_date
             form.end_date.data = job.end_date
             form.is_finished.data = job.is_finished
-            form.categories.data = [category.id for category in job.categories]
+            form.categories.data = ", ".join([str(category.id) for category in job.categories])
     if form.validate_on_submit():
         if job:
+            if not db_sess.query(User).get(form.team_leader.data):
+                return render_template('edit_job.html', title='Editing job', form=form,
+                                       message="There is no user with this id")
+            for category_id in form.categories.data.split(", "):
+                try:
+                    if not db_sess.query(Category).get(int(category_id)):
+                        return render_template('edit_job.html', title='Editing job', form=form,
+                                               message="There is no category or categories with this or those id")
+                except ValueError:
+                    return render_template('edit_job.html', title='Editing job', form=form,
+                                           message='Wrong category list format (correct examples: "1, 2", "1")')
             job.team_leader = form.team_leader.data
             job.job = form.job.data
             job.work_size = form.work_size.data
@@ -132,8 +147,8 @@ def edit_job(id):
                     job.categories.remove(category)
                 except ValueError:
                     pass
-            for category in form.categories.data:
-                job.categories.append(db_sess.query(Category).get(category))
+            for category_id in form.categories.data.split(", "):
+                job.categories.append(db_sess.query(Category).get(int(category_id)))
             db_sess.commit()
             return redirect('/jobs')
     return render_template('edit_job.html', title='Editing job', form=form)
@@ -153,6 +168,9 @@ def add_department():
     open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = AddDepartment()
     if form.validate_on_submit():
+        if not db_sess.query(User).get(form.chief.data):
+            return render_template("add_department.html", title='Adding a department', add_department=1, form=form,
+                                   message="There is no user with this id")
         db_sess.add(
             Department(title=form.title.data, chief=form.chief.data, members=form.members.data, email=form.email.data))
         db_sess.merge(current_user)
@@ -188,6 +206,9 @@ def edit_department(id):
             form.email.data = department.email
     if form.validate_on_submit():
         if department:
+            if not db_sess.query(User).get(form.chief.data):
+                return render_template('edit_department.html', title='Editing department', form=form,
+                                       message="There is no user with this id")
             department.title = form.title.data
             department.chief = form.chief.data
             department.members = form.members.data
