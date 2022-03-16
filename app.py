@@ -165,7 +165,6 @@ def delete_job(id):
 @app.route('/add_department', methods=['GET', 'POST'])
 @login_required
 def add_department():
-    open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = AddDepartment()
     if form.validate_on_submit():
         if not db_sess.query(User).get(form.chief.data):
@@ -195,7 +194,6 @@ def departments():
 @app.route('/edit_department/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_department(id):
-    open("users.txt", "w").writelines([f'{user.id} {user.surname} {user.name}\n' for user in db_sess.query(User)])
     form = EditDepartment()
     department = db_sess.query(Department).get(id)
     if request.method == "GET":
